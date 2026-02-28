@@ -28,6 +28,7 @@ def simple_iteration_method(x_range):
    q = None
    gunc = None
 
+   # Išrenkame kurį g(x) naudosime ir randame q
    max_deriv = np.max(gunc_1_deriv(x_range))
    if max_deriv < 1:
       q = max_deriv
@@ -45,19 +46,20 @@ def simple_iteration_method(x_range):
 
    plt.xlim((0, 1.5))
    plt.ylim((-2, 2))
+   plt.plot(x_range, func(x_range), color='purple', label='f(x)')
    plt.plot(x_range, x_range, color='green', label='y = x')
    plt.plot(x_range, gunc(x_range), color='blue', label='g(x)')
 
+   # Randame sprendinio įvertį
    while abs(gunc(x_0) - x_0) > (1-q) / q * eps:
       x_1 = gunc(x_0)
       iteration += 1
       iteration_table.append([iteration, x_1, abs(x_1 - x_0)])
-      plt.plot([x_0, x_0], [x_0, x_1], color='red')
-      plt.plot([x_0, x_1], [x_1, x_1], color='red')
+      plt.plot([x_0, x_0], [x_0, x_1], color='red', linestyle='--')
+      plt.plot([x_0, x_1], [x_1, x_1], color='red', linestyle='--')
       plt.plot(x_0, x_1, '.', color='red')
       x_0 = x_1
 
-   plt.plot(x_range, func(x_range), color='purple', label='f(x)')
    plt.plot(x_0, func(x_0), 'o', color='orange', label=f'Sprendinys {x_0:.5f}')
    
    iteration_table = pd.DataFrame(iteration_table, columns=['Iter. i', 'x_i', '|x_i - x_i-1|'])
@@ -121,10 +123,12 @@ def secant_method(x_range):
    iteration = 1
    iteration_table = []
 
-   secant_points = []
+   # Pradiniai 2 taškai
    x_0 = 1.5
    x_1 = 1.4
+   secant_points = []
 
+   # Randame sprendinio įvertį
    while abs(func(x_1)) > eps:
       secant_points.append((x_0, x_1))
       iteration_table.append([iteration, x_0, x_1, func(x_1)])
@@ -137,11 +141,13 @@ def secant_method(x_range):
    plt.ylim((-10, 6))
    plt.plot(x_range, func(x_range), color='purple', label='f(x)')
 
+   # Nubraižome kirstines
    for x1, x2 in secant_points:
       m = (func(x2) - func(x1)) / (x2 - x1)
       b = func(x1) - m * x1
       secant_values = m * x_range + b
       plt.plot(x_range, secant_values)
+      plt.plot([x2, x2], [func(x2), 0.0], color='red', linestyle='--')
 
    plt.plot(x_1, func(x_1), 'o', color='orange', label=f'Sprendinys {x_1:.5f}')
 
@@ -156,8 +162,8 @@ y = x + 0.25 - np.tan(x)
 
 for method_name, method_func in [
    ('Paprastųjų Iteracijų Metodas', simple_iteration_method),
-   ('Pusiaukirtos Metodas', half_slice_search),
-   ('Niutono Metodas', newton_method),
+   # ('Pusiaukirtos Metodas', half_slice_search),
+   # ('Niutono Metodas', newton_method),
    ('Kirstinių Metodas', secant_method)
 ]:
    plt.figure(figsize=(6, 4))
@@ -167,6 +173,6 @@ for method_name, method_func in [
    method_func(x)
 
    plt.legend()
-   plt.savefig(filepath, dpi=300)
-   # plt.show()
+   # plt.savefig(filepath, dpi=300)
+   plt.show()
    plt.close()
