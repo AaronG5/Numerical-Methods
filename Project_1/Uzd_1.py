@@ -3,12 +3,10 @@
 from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
+import os
 
 def func(x):
    return x + 0.25 - np.tan(x)
-
-def deriv(x):
-   return - (np.tan(x))**2
 
 def gunc_1(x):
    return np.tan(x) - 0.25
@@ -62,62 +60,7 @@ def simple_iteration_method(x_range):
 
    plt.plot(x_0, func(x_0), 'o', color='orange', label=f'Sprendinys {x_0:.5f}')
    
-   iteration_table = pd.DataFrame(iteration_table, columns=['Iter. i', 'x_i', '|x_i - x_i-1|'])
-   print(iteration_table.to_string(index=False, na_rep='', justify='left'))
-
-def half_slice_search(x_range):
-   a = x_range[0]
-   b = x_range[-1]
-
-   intervals = []
-
-   c = (a + b) / 2
-
-   while np.abs(func(c)) > eps:
-
-      intervals.append((a, b))
-
-      if func(a) * func(c) < 0:
-         b = c
-      elif func(b) * func(c) < 0:
-         a = c
-
-      c = (a + b) / 2
-
-   plt.xlim((0, 2))
-   plt.ylim((-10, 4))
-   plt.plot(x_range, func(x_range), color='purple', label='f(x)')
-   plt.plot(c, func(c), 'o', color='orange', label=f'Sprendinys {c:.5f}')
-
-   interval_height = 1
-   for a, b in intervals:
-      interval = np.linspace(a, b, 100)
-      interval_heights = np.full(len(interval), interval_height)
-      plt.plot(interval, interval_heights)
-      interval_height += 0.2
-
-def newton_method(x_range):
-   x_i = 1.5
-   tangent_points = []
-   
-   step = abs(x_i - x_range[0])
-
-   while step > eps:
-      tangent_points.append((x_i, func(x_i)))
-
-      x_new = x_i - func(x_i) / deriv(x_i)
-      step = abs(x_new - x_i)
-      x_i = x_new
-
-   plt.xlim((0, 2))
-   plt.ylim((-10, 6))
-   plt.plot(x_range, func(x_range), color='purple', label='f(x)')
-
-   for x_tan, y_tan in tangent_points:
-      tangent_func = deriv(x_tan) * (x_range - x_tan) + y_tan
-      plt.plot(x_range, tangent_func)
-
-   plt.plot(x_i, func(x_i), 'o', color='orange', label=f'Sprendinys {x_i:.5f}')
+   return pd.DataFrame(iteration_table, columns=['Iter. i', 'x_i', '|x_i - x_i-1|'])
 
 def secant_method(x_range):
    iteration = 1
@@ -151,28 +94,29 @@ def secant_method(x_range):
 
    plt.plot(x_1, func(x_1), 'o', color='orange', label=f'Sprendinys {x_1:.5f}')
 
-   iteration_table = pd.DataFrame(iteration_table, columns=['Iter. i', 'x_i', 'x_i+1', 'f(x_i+1)'])
-   print(iteration_table.to_string(index=False, justify='left'))
+   return pd.DataFrame(iteration_table, columns=['Iter. i', 'x_i', 'x_i+1', 'f(x_i+1)'])
 
 eps = 0.001
 
 x = np.arange(0, 1.5, 0.01)
-
 y = x + 0.25 - np.tan(x)
+
+current_dir = os.path.dirname(os.path.abspath(__file__)) + '/'
 
 for method_name, method_func in [
    ('Paprastųjų Iteracijų Metodas', simple_iteration_method),
-   # ('Pusiaukirtos Metodas', half_slice_search),
-   # ('Niutono Metodas', newton_method),
    ('Kirstinių Metodas', secant_method)
 ]:
+   graph_filepath = current_dir + method_name.replace(' ', '_').replace('ų', 'u') + '.png'
+   table_filepath = current_dir + method_name.replace(' ', '_').replace('ų', 'u') + '.csv'
+
    plt.figure(figsize=(6, 4))
-   filepath = 'Project_1/' + method_name.replace(' ', '_').replace('ų', 'u') + '.png'
    plt.title(method_name)
 
-   method_func(x)
-
+   iteration_table = method_func(x)
+   iteration_table.to_csv(table_filepath, index=False, na_rep='')
+   
    plt.legend()
-   # plt.savefig(filepath, dpi=300)
+   plt.savefig(graph_filepath, dpi=300)
    plt.show()
    plt.close()
