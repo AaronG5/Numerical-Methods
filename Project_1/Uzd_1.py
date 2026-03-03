@@ -72,7 +72,8 @@ def secant_method(x_range):
    secant_points = []
 
    # Randame sprendinio įvertį
-   while abs(func(x_1)) > eps:
+   # while abs(func(x_1)) > eps:
+   while abs(x_1 - x_0) > eps:
       secant_points.append((x_0, x_1))
       iteration_table.append([iteration, x_0, x_1, func(x_1)])
       iteration += 1
