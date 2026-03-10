@@ -99,7 +99,7 @@ def secant_method(x_range):
 
 eps = 0.001
 
-x = np.arange(0, 1.5, 0.01)
+x = np.linspace(0, 1.5, 2000)
 y = x + 0.25 - np.tan(x)
 
 current_dir = os.path.dirname(os.path.abspath(__file__)) + '/'
