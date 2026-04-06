@@ -6,6 +6,9 @@
 # L^T X = Y
 # L Y = F
 import numpy as np
+import pandas as pd
+from matplotlib import pyplot as plt
+import time
 
 def create_A(N):
    A = np.zeros((N, N), dtype=float)
@@ -32,8 +35,7 @@ def create_L(A, N):
 
    return L
 
-def solve_cholesky(A, F, N):
-   L = create_L(A, N)
+def solve_cholesky(L, F, N):
    Y = np.zeros(N)
    X = np.zeros(N)
 
@@ -50,29 +52,79 @@ def solve_1(N):
    A = create_A(N)
    X = np.zeros(N)
 
+   start_L = time.time()
+   L = create_L(A, N)
+   end_L = time.time()
+
+   time_cholesky = 0
+
    while True:
       F = create_F(X, N)
 
-      X_new = solve_cholesky(A, F, N)
+      start_cholesky = time.time()
+      X_new = solve_cholesky(L, F, N)
+      end_cholesky = time.time()
+      time_cholesky += end_cholesky - start_cholesky
 
       if np.max(np.abs(X_new - X)) < epsilon:
          break
 
       X = X_new
 
-   return X
+   return X, end_L - start_L, time_cholesky
+
+def solve_2():
+   
+   return 1
+
+def plot_cholesky(df):
+   fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
+
+   # Scaling factors
+   const1 = df['Choleskio laik.'].iloc[-1] / df['N'].iloc[-1]**3
+   const2 = df['Lygčių spr. laik.'].iloc[-1] / df['N'].iloc[-1]**2
+
+   # Cholesky plot
+   ax1.plot(df['N'], df['Choleskio laik.'], label='Išmatuotas laikas')
+   ax1.plot(df['N'], df['N']**3 * const1, label='O(N³) teorinis', linestyle='--')
+   ax1.set_xlabel('N')
+   ax1.set_ylabel('Laikas (ms)')
+   ax1.set_title('Choleskio dekompozicija')
+   ax1.legend()
+   ax1.grid(True)
+
+   # Triangular plot
+   ax2.plot(df['N'], df['Lygčių spr. laik.'], label='Išmatuotas laikas')
+   ax2.plot(df['N'], df['N']**2 * const2, label='O(N²) teorinis', linestyle='--')
+   ax2.set_xlabel('N')
+   ax2.set_ylabel('Laikas (ms)')
+   ax2.set_title('Trikampių lygčių sprendimas')
+   ax2.legend()
+   ax2.grid(True)
+
+   plt.tight_layout()
+   plt.savefig('Project_2/Cholesky.png', dpi=300)
+   plt.show()
 
 def main():
-   N = 4 # Matrix size N x N
-   A = create_A(N)
+   N = np.linspace(4, 1000, 200, dtype=int)
+   rows = []
 
-   result = solve_1(N)
+   for N_instance in N:
+      result, time_1, time_2 = solve_1(N_instance)
+      rows.append({
+         'N': N_instance,
+         'Choleskio laik.': time_1 * 1000,
+         'Lygčių spr. laik.': time_2 * 1000,
+      })
+   
+   df = pd.DataFrame(rows)
+   df.to_csv('Project_2/Cholesky.csv')
 
-   print("Residual:", np.max(np.abs(A @ result - create_F(result, N))))
-   print(result)
+   plot_cholesky(df)
 
    return 1
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
    main()
