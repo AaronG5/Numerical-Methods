@@ -29,26 +29,29 @@ def create_L(A, N):
    
    for k in range(N):
       for j in range(k):
-         L[k][j] = (A[j][k] - np.sum(L[j][:j] * L[k][:j])) / L[j][j]
+         # L[k][j] = (A[j][k] - np.sum(L[j][:j] * L[k][:j])) / L[j][j]
+         L[k][j] = (A[j][k] - L[j][:j] @ L[k][:j]) / L[j][j]
 
       L[k][k] = np.sqrt(A[k][k] - np.sum(L[k][:k]**2)) # Find diagonal l
 
    return L
 
-def solve_cholesky(L, F, N):
+def solve_triangular(L, F, N):
    Y = np.zeros(N)
    X = np.zeros(N)
 
    for i in range(N): # L Y = F
-      Y[i] = (F[i] - np.sum(L[i][:i] * Y[:i])) / L[i][i]
+      # Y[i] = (F[i] - np.sum(L[i][:i] * Y[:i])) / L[i][i]
+      Y[i] = (F[i] - L[i][:i] @ Y[:i]) / L[i][i]
 
    for i in range(N-1, -1, -1): # L^T X = Y
-      X[i] = (Y[i] - np.sum(L.T[i][i+1:] * X[i+1:])) / L[i][i]
+      # X[i] = (Y[i] - np.sum(L.T[i][i+1:] * X[i+1:])) / L[i][i]
+      X[i] = (Y[i] - L.T[i][i+1:] @ X[i+1:]) / L[i][i]
 
    return X
 
-def solve_1(N):
-   epsilon = 0.01 # Precision
+def solve_cholesky(N):
+   precision = 0.01 # Epsilon
    A = create_A(N)
    X = np.zeros(N)
 
@@ -62,20 +65,36 @@ def solve_1(N):
       F = create_F(X, N)
 
       start_cholesky = time.time()
-      X_new = solve_cholesky(L, F, N)
+      X_new = solve_triangular(L, F, N)
       end_cholesky = time.time()
       time_cholesky += end_cholesky - start_cholesky
 
-      if np.max(np.abs(X_new - X)) < epsilon:
+      if np.max(np.abs(X_new - X)) < precision:
          break
 
       X = X_new
 
    return X, end_L - start_L, time_cholesky
 
-def solve_2():
-   
-   return 1
+def solve_steepest_descent(N):
+   precision = 0.001
+   A = create_A(N)
+   X = np.zeros(N)
+   F = create_F(X, N)
+   Z = A @ X - F
+
+   while True:
+      r = A @ Z
+
+      tau = (Z @ Z) / (r @ Z)
+      
+      X = X - tau * Z
+      Z = Z - tau * r 
+
+      if Z @ Z < precision**2:
+         break
+
+   return X
 
 def plot_cholesky(df):
    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
@@ -107,21 +126,27 @@ def plot_cholesky(df):
    plt.show()
 
 def main():
-   N = np.linspace(4, 1000, 200, dtype=int)
-   rows = []
+   # N = np.linspace(4, 1000, 200, dtype=int)
+   # rows = []
 
-   for N_instance in N:
-      result, time_1, time_2 = solve_1(N_instance)
-      rows.append({
-         'N': N_instance,
-         'Choleskio laik.': time_1 * 1000,
-         'Lygčių spr. laik.': time_2 * 1000,
-      })
+   # for N_instance in N:
+   #    result, time_1, time_2 = solve_cholesky(N_instance)
+   #    rows.append({
+   #       'N': N_instance,
+   #       'Choleskio laik.': time_1 * 1000,
+   #       'Lygčių spr. laik.': time_2 * 1000,
+   #    })
    
-   df = pd.DataFrame(rows)
-   df.to_csv('Project_2/Cholesky.csv')
+   # df = pd.DataFrame(rows)
+   # df.to_csv('Project_2/Cholesky.csv')
 
-   plot_cholesky(df)
+   # plot_cholesky(df)
+
+   M = 4
+   X_ans_1, _, _ = solve_cholesky(M)
+   X_ans_2 = solve_steepest_descent(M)
+   print(X_ans_1)
+   print(X_ans_2)
 
    return 1
 
