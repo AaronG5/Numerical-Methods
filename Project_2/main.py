@@ -6,8 +6,10 @@
 # L^T X = Y
 # L Y = F
 import numpy as np
+from scipy import linalg
+from scipy.optimize import fsolve
 import pandas as pd
-from matplotlib import pyplot as plt
+import matplotlib.pyplot as plt
 import time
 
 def create_A(N):
@@ -96,6 +98,22 @@ def solve_steepest_descent(N):
 
    return X
 
+def solve_built_in(N):
+   A = create_A(N)
+   X = np.zeros(N)
+   F = create_F(X, N)
+
+   built_in_1 = np.linalg.solve(A, F) # 1
+
+   built_in_2 = linalg.lu_solve(linalg.lu_factor(A), F) # 2
+
+   built_in_3 = linalg.cho_solve(linalg.cho_factor(A), F) # 3
+
+   func = lambda X: A @ X - create_F(X, N)
+   built_in_4 = fsolve(func, np.zeros(N))
+
+   return built_in_1, built_in_2, built_in_3, built_in_4
+
 def plot_cholesky(df):
    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
 
@@ -143,10 +161,15 @@ def main():
    # plot_cholesky(df)
 
    M = 4
-   X_ans_1, _, _ = solve_cholesky(M)
-   X_ans_2 = solve_steepest_descent(M)
-   print(X_ans_1)
-   print(X_ans_2)
+   X_ans_1, _, _ = solve_cholesky(M)   # 1
+   X_ans_2 = solve_steepest_descent(M) # 2
+   X_ans_3_1, X_ans_3_2, X_ans_3_3, X_ans_3_4 = solve_built_in(M)
+   print('Cholesky method:', X_ans_1)
+   print('Steepest descent method:', X_ans_2)
+   print('Built-in method 1:', X_ans_3_1)
+   print('Built-in method 2:', X_ans_3_2)
+   print('Built-in method 3:', X_ans_3_3)
+   print('Built-in method 4:', X_ans_3_4)
 
    return 1
 
