@@ -31,10 +31,21 @@ def create_L(A, N):
    
    for k in range(N):
       for j in range(k):
-         # L[k][j] = (A[j][k] - np.sum(L[j][:j] * L[k][:j])) / L[j][j]
          L[k][j] = (A[j][k] - L[j][:j] @ L[k][:j]) / L[j][j]
-
       L[k][k] = np.sqrt(A[k][k] - np.sum(L[k][:k]**2)) # Find diagonal l
+
+   # True N^3 (no vectorization)
+   # for k in range(N):
+   #    for j in range(k):
+   #       s = 0
+   #       for m in range(j):
+   #          s += L[k][m] * L[j][m]
+   #       L[k][j] = (A[k][j] - s) / L[j][j]
+
+   #    s = 0
+   #    for m in range(k):
+   #       s += L[k][m]**2
+   #    L[k][k] = np.sqrt(A[k][k] - s)
 
    return L
 
@@ -43,12 +54,21 @@ def solve_triangular(L, F, N):
    X = np.zeros(N)
 
    for i in range(N): # L Y = F
-      # Y[i] = (F[i] - np.sum(L[i][:i] * Y[:i])) / L[i][i]
       Y[i] = (F[i] - L[i][:i] @ Y[:i]) / L[i][i]
-
    for i in range(N-1, -1, -1): # L^T X = Y
-      # X[i] = (Y[i] - np.sum(L.T[i][i+1:] * X[i+1:])) / L[i][i]
       X[i] = (Y[i] - L.T[i][i+1:] @ X[i+1:]) / L[i][i]
+   
+   # True N^2 (no vectorization)
+   # for i in range(N): # L Y = F
+   #    s = 0
+   #    for j in range(i):
+   #       s += L[i][j] * Y[j]
+   #    Y[i] = (F[i] - s) / L[i][i]
+   # for i in range(N-1, -1, -1): # L^T X = Y
+   #    s = 0
+   #    for j in range(i+1, N):
+   #       s += L.T[i][j] * X[j]
+   #    X[i] = (Y[i] - s) / L[i][i]
 
    return X
 
@@ -115,55 +135,61 @@ def solve_built_in(N):
    return built_in_1, built_in_2, built_in_3, built_in_4
 
 def plot_cholesky(df):
-   fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
-
    # Scaling factors
-   const1 = df['Choleskio laik.'].iloc[-1] / df['N'].iloc[-1]**3
-   const2 = df['Lygčių spr. laik.'].iloc[-1] / df['N'].iloc[-1]**2
+   const1_1 = df['Choleskio laik.'].iloc[-1] / df['N'].iloc[-1]**3
+   const1_2 = df['Choleskio laik.'].iloc[-1] / df['N'].iloc[-1]**2
+   const2_1 = df['Lygčių spr. laik.'].iloc[-1] / df['N'].iloc[-1]**2
+   const2_2 = df['Lygčių spr. laik.'].iloc[-1] / df['N'].iloc[-1]
 
    # Cholesky plot
+   fig1, ax1 = plt.subplots(figsize=(7, 5))
    ax1.plot(df['N'], df['Choleskio laik.'], label='Išmatuotas laikas')
-   ax1.plot(df['N'], df['N']**3 * const1, label='O(N³) teorinis', linestyle='--')
+   ax1.plot(df['N'], df['N']**3 * const1_1, label='O(N³)', linestyle='--', color='red') 
+   ax1.plot(df['N'], df['N']**2 * const1_2, label='O(N²)', linestyle='--', color='orange')
    ax1.set_xlabel('N')
    ax1.set_ylabel('Laikas (ms)')
    ax1.set_title('Choleskio dekompozicija')
    ax1.legend()
    ax1.grid(True)
+   fig1.savefig('Project_2/Cholesky_decomp.png', dpi=300)
 
    # Triangular plot
+   fig2, ax2 = plt.subplots(figsize=(7, 5))
    ax2.plot(df['N'], df['Lygčių spr. laik.'], label='Išmatuotas laikas')
-   ax2.plot(df['N'], df['N']**2 * const2, label='O(N²) teorinis', linestyle='--')
+   ax2.plot(df['N'], df['N']**2 * const2_1, label='O(N²)', linestyle='--', color='red')
+   ax2.plot(df['N'], df['N'] * const2_2, label='O(N)', linestyle='--', color='orange') 
    ax2.set_xlabel('N')
    ax2.set_ylabel('Laikas (ms)')
    ax2.set_title('Trikampių lygčių sprendimas')
    ax2.legend()
    ax2.grid(True)
+   fig2.savefig('Project_2/Cholesky_triangular.png', dpi=300)
 
-   plt.tight_layout()
-   plt.savefig('Project_2/Cholesky.png', dpi=300)
-   plt.show()
+   # plt.show()
 
 def main():
-   # N = np.linspace(4, 1000, 200, dtype=int)
-   # rows = []
+   start = time.time()
+   N = np.linspace(4, 1000, 200, dtype=int)
+   rows = []
 
-   # for N_instance in N:
-   #    result, time_1, time_2 = solve_cholesky(N_instance)
-   #    rows.append({
-   #       'N': N_instance,
-   #       'Choleskio laik.': time_1 * 1000,
-   #       'Lygčių spr. laik.': time_2 * 1000,
-   #    })
+   for N_instance in N:
+      _, time_1, time_2 = solve_cholesky(N_instance)
+      rows.append({
+         'N': N_instance,
+         'Choleskio laik.': time_1 * 1000,
+         'Lygčių spr. laik.': time_2 * 1000,
+      })
    
-   # df = pd.DataFrame(rows)
-   # df.to_csv('Project_2/Cholesky.csv')
+   df = pd.DataFrame(rows)
+   df.to_csv('Project_2/Cholesky.csv')
 
-   # plot_cholesky(df)
+   plot_cholesky(df)
 
    M = 4
-   X_ans_1, _, _ = solve_cholesky(M)   # 1
-   X_ans_2 = solve_steepest_descent(M) # 2
-   X_ans_3_1, X_ans_3_2, X_ans_3_3, X_ans_3_4 = solve_built_in(M)
+   X_ans_1, _, _ = solve_cholesky(M)                              # 1
+   X_ans_2 = solve_steepest_descent(M)                            # 2
+   X_ans_3_1, X_ans_3_2, X_ans_3_3, X_ans_3_4 = solve_built_in(M) # 3
+
    print('Cholesky method:', X_ans_1)
    print('Steepest descent method:', X_ans_2)
    print('Built-in method 1:', X_ans_3_1)
@@ -171,8 +197,11 @@ def main():
    print('Built-in method 3:', X_ans_3_3)
    print('Built-in method 4:', X_ans_3_4)
 
-   return 1
+   end = time.time()
 
+   print(f'Program took {(end - start)} s\n')
+
+   return 1
 
 if __name__ == '__main__':
    main()
