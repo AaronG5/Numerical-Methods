@@ -40,8 +40,8 @@ def main():
    df = pd.DataFrame(rows)
    df.to_csv(table_filepath)
 
-   plot_cholesky(df)
-   plot_steepest_descent(df)
+   plot_cholesky(df, result_dir)
+   plot_steepest_descent(df, result_dir)
 
    M = 4
    X_res_1, _, _ = solve_cholesky(M)      # 1

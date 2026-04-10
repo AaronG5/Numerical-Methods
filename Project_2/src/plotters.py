@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
+import os
 
-def plot_cholesky(df):
+def plot_cholesky(df, result_dir):
    # Scaling factors
    const1_1 = df['Choleskio laik.'].iloc[-1] / df['N'].iloc[-1]**3
    const1_2 = df['Choleskio laik.'].iloc[-1] / df['N'].iloc[-1]**2
@@ -17,7 +18,9 @@ def plot_cholesky(df):
    ax1.set_title('Choleskio dekompozicija')
    ax1.legend()
    ax1.grid(True)
-   fig1.savefig('Project_2/Cholesky_decomp.png', dpi=300)
+
+   cholesky_graph_filepath = os.path.join(result_dir, 'Cholesky_decomp.png')
+   fig1.savefig(cholesky_graph_filepath, dpi=300)
 
    # Triangular plot
    fig2, ax2 = plt.subplots(figsize=(7, 5))
@@ -29,11 +32,13 @@ def plot_cholesky(df):
    ax2.set_title('Trikampių lygčių sprendimas')
    ax2.legend()
    ax2.grid(True)
-   fig2.savefig('Project_2/Cholesky_triangular.png', dpi=300)
+
+   triangular_graph_filepath = os.path.join(result_dir, 'Cholesky_triangular.png')
+   fig2.savefig(triangular_graph_filepath, dpi=300)
 
    # plt.show()
 
-def plot_steepest_descent(df):
+def plot_steepest_descent(df, result_dir):
 
    fig, ax = plt.subplots(figsize=(7, 5))
    ax.plot(df['N'], df['Didžiausio nuolydžio laik.'], label="Išmatuotas laikas")
