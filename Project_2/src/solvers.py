@@ -60,7 +60,7 @@ def solve_steepest_descent(N):
    F = create_F(X, N)
    Z = A @ X - F
 
-   start = time.time()
+   iterations = 0
    while True:
       r = A @ Z
 
@@ -68,12 +68,13 @@ def solve_steepest_descent(N):
       
       X = X - tau * Z
       Z = Z - tau * r 
+      iterations += 1
 
+      # if Z @ Z < precision**2 * (F @ F): # Better, but takes much longer for all instances of N
       if Z @ Z < precision**2:
          break
-   end = time.time()
 
-   return X, (end - start)
+   return X, iterations
 
 def solve_built_in(N):
    A = create_A(N)
