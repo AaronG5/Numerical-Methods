@@ -36,11 +36,20 @@ def plot_cholesky(df, result_dir):
    triangular_graph_filepath = os.path.join(result_dir, 'Cholesky_triangular.png')
    fig2.savefig(triangular_graph_filepath, dpi=300)
 
-   # plt.show()
-
-def plot_steepest_descent(df, result_dir):
+def plot_built_in(df, result_dir):
 
    fig, ax = plt.subplots(figsize=(7, 5))
-   ax.plot(df['N'], df['Didžiausio nuolydžio laik.'], label="Išmatuotas laikas")
-   # ax.plot(df['N'], df['N'])
+   ax.plot(df['N'], df['Python 1-os funkcijos laik.'], label='1 f-jos laikas')
+   ax.plot(df['N'], df['Python 2-os funkcijos laik.'], label='2 f-jos laikas')
+   ax.plot(df['N'], df['Python 3-os funkcijos laik.'], label='3 f-jos laikas')
+   ax.plot(df['N'], df['Python 4-os funkcijos laik.'], label='4 f-jos laikas')
+   ax.set_xlabel('N')
+   ax.set_ylabel('Laikas (ms)')
+   ax.set_title('Python funkcijų darbo laikas')
+   ax.legend()
+   ax.grid(True)
+
+   built_in_functions_graph_filepath = os.path.join(result_dir, 'Python_funkcijos.png')
+   fig.savefig(built_in_functions_graph_filepath, dpi=300)
+
    # TODO: Finish
