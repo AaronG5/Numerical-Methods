@@ -102,14 +102,15 @@ eps = 0.001
 x = np.linspace(0, 1.5, 2000)
 y = x + 0.25 - np.tan(x)
 
-current_dir = os.path.dirname(os.path.abspath(__file__)) + '/'
+result_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'result')
+os.makedirs(result_dir, exist_ok=True)
 
 for method_name, method_func in [
    ('Paprastųjų Iteracijų Metodas', simple_iteration_method),
    ('Kirstinių Metodas', secant_method)
 ]:
-   graph_filepath = current_dir + method_name.replace(' ', '_').replace('ų', 'u') + '.png'
-   table_filepath = current_dir + method_name.replace(' ', '_').replace('ų', 'u') + '.csv'
+   graph_filepath = os.path.join(result_dir, method_name.replace(' ', '_').replace('ų', 'u') + '.png')
+   table_filepath = os.path.join(result_dir, method_name.replace(' ', '_').replace('ų', 'u') + '.csv')
 
    plt.figure(figsize=(6, 4))
    plt.title(method_name)

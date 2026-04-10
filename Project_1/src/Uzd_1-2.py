@@ -1,9 +1,12 @@
 from scipy.optimize import fsolve
 from matplotlib import pyplot as plt
 import numpy as np
+import os
 
 def func(x):
    return (x[0]**2 + x[1]**2 - 20), (x[0]**2 * x[1] + x[0] * x[1]**2 - 8)
+
+result_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'result')
 
 x = np.linspace(-5, 5, 20)
 y = np.linspace(-5, 5, 20)
@@ -35,5 +38,6 @@ ax.plot_surface(X, Y, Z2, alpha=0.5)
 for r in roots:
    ax.scatter3D(r[0], r[1], 0, color='black', s=60, alpha=1)
 
-plt.savefig('Project_1/Part_2.png', dpi=300)
+os.makedirs(result_dir, exist_ok=True)
+plt.savefig(os.path.join(result_dir, 'Part_2.png'), dpi=300)
 plt.show()
