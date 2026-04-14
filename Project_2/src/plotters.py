@@ -51,5 +51,3 @@ def plot_built_in(df, result_dir):
 
    built_in_functions_graph_filepath = os.path.join(result_dir, 'Python_funkcijos.png')
    fig.savefig(built_in_functions_graph_filepath, dpi=300)
-
-   # TODO: Finish

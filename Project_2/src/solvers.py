@@ -28,7 +28,7 @@ def solve_triangular(L, F, N):
    return X
 
 def solve_cholesky(N):
-   precision = 0.01 # Epsilon
+   precision = 0.01
    A = create_A(N)
    X = np.zeros(N)
 
