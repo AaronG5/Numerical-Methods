@@ -1,7 +1,7 @@
 # 6 (1, 5)
 import matplotlib.pyplot as plt
 import numpy as np
-import os.path as op
+import os
 
 def func(x):
    return (1 + x**2) / (7 + x**3)
@@ -33,9 +33,7 @@ class LinearInterpolation():
          if self.x[i] <= x <= self.x[i+1]:
             return self.y[i] + self.m[i] * (x - self.x[i])
 
-   def plot(self):
-      result_dir = op.join(op.dirname(op.abspath(__file__)), '..', 'result')
-
+   def plot(self, result_dir, a, b):
       plt.figure(figsize=(6, 4))
       plt.title("Tiesinio interpoliavimo polinomas")
       plt.xlim((self.x[0] - 0.1, self.x[-1] + 0.1))
@@ -51,17 +49,27 @@ class LinearInterpolation():
          )
 
       plt.plot(self.x, self.y, 'o', color='red', label='Interpoliavimo mazgai')
-
+      
+      interval = np.linspace(a, b, 100)
+      plt.plot(interval, func(interval), color='orange', alpha=0.8, label='Duota funkcija')
       plt.legend()
+      
+      graph_filepath = os.path.join(result_dir, 'Linear_interpolation.png')
+      plt.savefig(graph_filepath, dpi=300)
       plt.show()
-      plt.savefig()
 
 def main():
-   x, y = get_points(func, -1, 4)
+   result_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'result')
+   os.makedirs(result_dir, exist_ok=True)
+
+   a = -1
+   b = 4
+
+   x, y = get_points(func, a, b)
    linear_interpolation = LinearInterpolation(x, y)
 
    print(linear_interpolation.evaluate(2.3))
-   linear_interpolation.plot()
+   linear_interpolation.plot(result_dir, a, b)
 
    return 0
 
