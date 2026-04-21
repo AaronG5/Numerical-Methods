@@ -26,12 +26,23 @@ class LinearInterpolation():
       return np.diff(y) / np.diff(x) # Vectorization baby!
    
    def evaluate(self, x):
+      L = None
+      
       if x < self.x[0] or x > self.x[-1]:
          raise ValueError(f"x={x} is outside the interpolation interval")
       
       for i in range(10):
          if self.x[i] <= x <= self.x[i+1]:
-            return self.y[i] + self.m[i] * (x - self.x[i])
+            L = self.y[i] + self.m[i] * (x - self.x[i])
+
+            j = max(1, min(i, 9))
+            f_x0_x1 = (self.y[j] - self.y[j-1]) / (self.x[j] - self.x[j-1])
+            f_x1_x2 = (self.y[j+1] - self.y[j]) / (self.x[j+1] - self.x[j])
+
+            M_2 = 2 * abs((f_x1_x2 - f_x0_x1) / (self.x[j+1] - self.x[j-1]))
+            estimated_error = 0.125 * (self.x[j+1] - self.x[j])**2 * M_2
+            real_error = abs(L - func(x))
+            return L, estimated_error, real_error
 
    def plot(self, result_dir, a, b):
       plt.figure(figsize=(6, 4))
@@ -68,7 +79,14 @@ def main():
    x, y = get_points(func, a, b)
    linear_interpolation = LinearInterpolation(x, y)
 
-   print(linear_interpolation.evaluate(2.3))
+   for point in (2.8, 1):
+      result, est_error, real_error = linear_interpolation.evaluate(point)
+      print(f'Test point:      {point}\n'
+            f'Result:          {result:.5f}\n' \
+            f'Estimated error: {est_error:.5f}\n' \
+            f'Actual error:    {real_error:.5f}\n' \
+            f'Difference:      {abs(est_error - real_error):.5f}\n')
+
    linear_interpolation.plot(result_dir, a, b)
 
    return 0
