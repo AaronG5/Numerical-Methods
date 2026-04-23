@@ -6,6 +6,12 @@ import os
 def func(x):
    return (1 + x**2) / (7 + x**3)
 
+def div_diff(x, y): # Divided difference of n-th row
+   if len(x) == 2:
+      return (y[-1] - y[0]) / (x[-1] - x[0])
+   
+   return (div_diff(x[1:], y[1:]) - div_diff(x[:-1], y[:-1]))/ (x[-1] - x[0])
+
 def get_points(function, a, b): # Interval [a; b]
    x = np.linspace(a, b, 11)
    y = function(x)
@@ -18,12 +24,7 @@ class LinearInterpolation():
       self.m = self.create_slope_coefficients(x, y) # Tiesių nuolydžio koeficientai
 
    def create_slope_coefficients(self, x, y):
-      # m = []
-      # for i in range(10):
-      #    m.append((y[i+1] - y[i]) / (x[i+1] - x[i]))
-      # return m
-
-      return np.diff(y) / np.diff(x) # Vectorization baby!
+      return np.diff(y) / np.diff(x)
    
    def evaluate(self, x):
       L = None
@@ -36,10 +37,7 @@ class LinearInterpolation():
             L = self.y[i] + self.m[i] * (x - self.x[i])
 
             j = max(1, min(i, 9))
-            f_x0_x1 = (self.y[j] - self.y[j-1]) / (self.x[j] - self.x[j-1])
-            f_x1_x2 = (self.y[j+1] - self.y[j]) / (self.x[j+1] - self.x[j])
-
-            M_2 = 2 * abs((f_x1_x2 - f_x0_x1) / (self.x[j+1] - self.x[j-1]))
+            M_2 = 2 * abs(div_diff(self.x[j-1:j+2], self.y[j-1:j+2]))
             estimated_error = 0.125 * (self.x[j+1] - self.x[j])**2 * M_2
             real_error = abs(L - func(x))
             return L, estimated_error, real_error
@@ -93,3 +91,4 @@ def main():
 
 if __name__ == "__main__":
    main()
+   
