@@ -165,9 +165,9 @@ def main():
    # linear_interpolation.plot(result_dir)
 
    quad_spline = QuadraticSpline(x, y)
-   # quad_spline.solve(-8.5)
-   # quad_spline.plot(result_dir)
-   quad_spline.animate(result_dir)
+   quad_spline.solve(-9)
+   quad_spline.plot(result_dir)
+   # quad_spline.animate(result_dir)
 
    return 0
 
