@@ -42,7 +42,7 @@ class LinearInterpolation():
             j = max(1, min(i, 9))
             M_2 = 2 * abs(div_diff(self.x[j-1:j+2], self.y[j-1:j+2]))
             estimated_error = 0.125 * (self.x[j+1] - self.x[j])**2 * M_2
-            real_error = abs(L - func(x))
+            real_error = abs(func(x) - L)
             return L, estimated_error, real_error
 
    def plot(self, result_dir):
@@ -76,7 +76,7 @@ class QuadraticSpline():
       self.y = y
       self.coef = []
 
-   def find_coefficients(self, e):
+   def find_coefficients(self, e=0):
       e = np.tan(np.radians(e))
       self.coef = []
       for i in range(10):
