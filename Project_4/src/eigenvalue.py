@@ -26,7 +26,11 @@ def find_eigenvalue(A) -> float:
 
    return lam
 
-def relax_method(A, B, omega, eps) -> np.ndarray:
+def relaxation_method(A, B, eps) -> np.ndarray:
+   J = create_jacobian_matrix(A)
+   eigenvalue = find_eigenvalue(J)
+   omega = find_omega(eigenvalue)
+   
    N = len(B)
    X1 = np.zeros(N)
    D = np.diag(A)
@@ -50,13 +54,7 @@ def main():
    A = create_A(N)
    B = create_B(np.zeros(N))
 
-   J = create_jacobian_matrix(A)
-
-   eigenvalue = find_eigenvalue(J)
-
-   omega = find_omega(eigenvalue)
-
-   res = relax_method(A, B, omega, eps)
+   res = relaxation_method(A, B, eps)
    print(res)
 
    return 0
