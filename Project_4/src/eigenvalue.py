@@ -1,6 +1,6 @@
 # 1
 import numpy as np
-from matrix import create_A, create_B
+from matrix import create_A, create_B, create_jacobian_matrix
 
 def find_omega(eigen) -> float:
    return 2.0 / (1.0 + np.sqrt(1.0 - eigen**2))
@@ -43,12 +43,6 @@ def relax_method(A, B, omega, eps) -> np.ndarray:
          break
 
    return X1
-
-def create_jacobian_matrix(A) -> np.ndarray:
-   D = np.diag(A)
-   D_inv = np.diag(1.0 / D)
-   LR = A - np.diag(D)
-   return -D_inv @ LR
 
 def main():
    eps = 0.0001
