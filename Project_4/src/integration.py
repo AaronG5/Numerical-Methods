@@ -7,6 +7,8 @@ import numpy as np
 import pandas as pd
 import os
 
+I_count = 0
+
 def func(x):
    return x * np.e**(-x**2)
 
@@ -14,8 +16,13 @@ def deriv(x):
    return np.e**(-x**2) * (1 - 2 * x**2)
 
 def find_M(a, b):
-   x = np.arange(a, b+1)
+   x = np.linspace(a, b, 1000)
    return np.max(np.abs(deriv(x)))
+
+def find_area(a, b):
+   global I_count
+   I_count += 1
+   return abs(b - a) * func(b)
 
 def integrate(a, b, n, M):
    interval = np.linspace(a, b, n+1)
@@ -38,17 +45,20 @@ def plot(data, result_dir):
    plt.savefig(graph_filepath, dpi=300)
    plt.show()
 
-def main():
-   result_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'res')
-   os.makedirs(result_dir, exist_ok=True)
-   real_area = 0.1838780157
+def adaptive_integrate(a, b, eps, I_full=None):
+   if I_full is None:
+      I_full = find_area(a, b)
+   mid = (a + b) / 2
+   I_left = find_area(a, mid)
+   I_right = find_area(mid, b)
 
-   a = 1
-   b = 3
-   M = find_M(a, b)
+   if abs(I_full - I_left - I_right) < eps:
+      return I_left + I_right
+   else:
+      return (adaptive_integrate(a, mid, eps, I_left) + 
+              adaptive_integrate(mid, b ,eps, I_right))
 
-   n_arr = np.arange(20, 201, 20)
-
+def run_integral(a, b, n_arr, M, real_area, result_dir):
    rows = []
 
    for n in n_arr:
@@ -66,6 +76,34 @@ def main():
    df.to_csv(table_filepath)
 
    plot(df, result_dir)
+
+   return 0
+
+def run_adaptive_integral(a, b, real_area, result_dir):
+   global I_count
+   eps = 0.001
+
+   est_area = adaptive_integrate(a, b, eps)
+
+   print(f'Apytiksle reiksme: {est_area}')
+   print(f'Paklaida: {abs(est_area-real_area)}')
+   print(f'Funkciju skaiciavimo kiekis: {I_count}')
+
+   return 0
+
+def main():
+   result_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'res')
+   os.makedirs(result_dir, exist_ok=True)
+   real_area = 0.1838780157
+
+   a = 1
+   b = 3
+   M = find_M(a, b)
+
+   n_arr = np.arange(20, 301, 20)
+
+   run_integral(a, b, n_arr, M, real_area, result_dir)
+   run_adaptive_integral(a, b, real_area, result_dir)
 
    return 0
 
