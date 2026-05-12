@@ -24,7 +24,8 @@ def find_area(a, b):
    I_count += 1
    return abs(b - a) * func(b)
 
-def integrate(a, b, n, M):
+def integrate(a, b, n):
+   M = find_M(a, b)
    interval = np.linspace(a, b, n+1)
    h = (b - a) / n
 
@@ -58,11 +59,11 @@ def adaptive_integrate(a, b, eps, I_full=None):
       return (adaptive_integrate(a, mid, eps, I_left) + 
               adaptive_integrate(mid, b ,eps, I_right))
 
-def run_integral(a, b, n_arr, M, real_area, result_dir):
+def run_integral(a, b, n_arr, real_area, result_dir):
    rows = []
 
    for n in n_arr:
-      est_area, est_error = integrate(a, b, n, M)
+      est_area, est_error = integrate(a, b, n)
       rows.append({
          'N': n, 
          'Apytiksle reiksme': est_area,
@@ -79,7 +80,7 @@ def run_integral(a, b, n_arr, M, real_area, result_dir):
 
    return 0
 
-def run_adaptive_integral(a, b, real_area, result_dir):
+def run_adaptive_integral(a, b, real_area):
    global I_count
    eps = 0.001
 
@@ -98,11 +99,10 @@ def main():
 
    a = 1
    b = 3
-   M = find_M(a, b)
 
    n_arr = np.arange(20, 301, 20)
 
-   run_integral(a, b, n_arr, M, real_area, result_dir)
+   run_integral(a, b, n_arr, real_area, result_dir)
    run_adaptive_integral(a, b, real_area, result_dir)
 
    return 0
