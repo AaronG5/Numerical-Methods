@@ -38,6 +38,8 @@ def integrate(a, b, n):
 def plot(data, result_dir):
    plt.figure(figsize=(6, 4))
    plt.title("Integravimo paklaidos")
+   plt.xlabel('N')
+   plt.ylabel('Paklaida')
    
    plt.plot(data['N'], data['Apytiksle paklaida'], label='Apytikslė paklaida')
    plt.plot(data['N'], data['Tikroji paklaida'], label='Tikroji paklaida')
@@ -103,7 +105,7 @@ def main():
    n_arr = np.arange(20, 301, 20)
 
    run_integral(a, b, n_arr, real_area, result_dir)
-   run_adaptive_integral(a, b, real_area, result_dir)
+   run_adaptive_integral(a, b, real_area)
 
    return 0
 
