@@ -47,9 +47,6 @@ def symmetric_euler_method(x_values, y, h):
 
    for x in x_values:
       y_values.append(y)
-      
-      # y_est = simp_iter(x, y, h)
-      # y = y + 0.5 * h * (diff(x, y) + diff(x + h, y_est))
 
       y = simp_iter(x, y, h)
 
