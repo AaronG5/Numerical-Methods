@@ -24,7 +24,7 @@ def simp_iter(x, y, h):
 
    while True:
       y_prev = y_next
-      y_next = y + 0.5 * h * (diff(x, y) + diff(x + h, y_next))
+      y_next = y + h * diff(x + 0.5 * h, (y + y_next) / 2)
 
       if abs(y_next - y_prev) < eps:
          return y_next
