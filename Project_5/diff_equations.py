@@ -56,8 +56,6 @@ def plot_graph(x_values, y_values, real_y_values, h, method_name, result_dir):
    filename = method_name.replace(' ', '_')
    graph_filename = filename + '.png'
    graph_filepath = os.path.join(result_dir, graph_filename)
-   table_filename = filename + f'_h_{h}' + '.csv'
-   table_filepath = os.path.join(result_dir, table_filename)
 
    plt.figure(figsize=(6, 4))
    plt.title(method_name)
@@ -71,7 +69,11 @@ def plot_graph(x_values, y_values, real_y_values, h, method_name, result_dir):
 
    plt.legend()
    plt.savefig(graph_filepath, dpi=300)
-   # plt.show()
+
+def make_table(x_values, y_values, real_y_values, h, method_name, result_dir):
+   filename = method_name.replace(' ', '_')
+   table_filename = filename + f'_h_{h}' + '.csv'
+   table_filepath = os.path.join(result_dir, table_filename)
 
    err = np.abs(real_y_values - y_values)
    df = pd.DataFrame({
@@ -83,6 +85,27 @@ def plot_graph(x_values, y_values, real_y_values, h, method_name, result_dir):
    df.to_csv(table_filepath)
 
    return np.max(err)
+
+def plot_norms(error_norms, result_dir):
+    h_values = [e['h'] for e in error_norms]
+    rk_norms = [e['runge_kutta_norm'] for e in error_norms]
+    se_norms = [e['symmetric_euler_norm'] for e in error_norms]
+
+    plt.figure(figsize=(7, 5))
+    plt.title('Maksimalios normos priklausomybė nuo h')
+    plt.xlabel('h')
+    plt.ylabel('Maksimali norma')
+
+    plt.plot(h_values, rk_norms, 'o-', label='Rungės-Kuto (3 eilė)', color='blue')
+    plt.plot(h_values, se_norms, 's-', label='Simetrinis Eulerio', color='red')
+
+    plt.yscale('log')
+    plt.xscale('log')
+    plt.legend()
+    plt.grid(True, which='both', linestyle='--', alpha=0.5)
+    plt.tight_layout()
+
+    plt.savefig(os.path.join(result_dir, 'norm_comparison.png'), dpi=300)
 
 def main():
    result_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'res')
@@ -103,16 +126,21 @@ def main():
 
       method_1 = 'Tripakopis Rungės-Kuto metodas'
       y_values_1 = third_order_runge_kutta_method(x_values, y, h)
-      runge_kutta_err_norm = plot_graph(x_values, y_values_1, real_y_values, h, method_1, result_dir)
+      runge_kutta_err_norm = make_table(x_values, y_values_1, real_y_values, h, method_1, result_dir)
 
       method_2 = 'Simetrinis Eulerio metodas'
       y_values_2 = symmetric_euler_method(x_values, y, h)
-      symmetric_euler_norm = plot_graph(x_values, y_values_2, real_y_values, h, method_2, result_dir)
+      symmetric_euler_norm = make_table(x_values, y_values_2, real_y_values, h, method_2, result_dir)
       error_norms.append({
          'h': h,
          'runge_kutta_norm': runge_kutta_err_norm,
          'symmetric_euler_norm': symmetric_euler_norm
       })
+
+      if h == 0.1:
+         plot_graph(x_values, y_values_1, real_y_values, h, method_1, result_dir)
+         plot_graph(x_values, y_values_2, real_y_values, h, method_2, result_dir)
+
    print(error_norms[2]['runge_kutta_norm'] / error_norms[1]['runge_kutta_norm'])
    print(error_norms[2]['symmetric_euler_norm'] / error_norms[1]['symmetric_euler_norm'])
 
@@ -120,7 +148,7 @@ def main():
    
    norm_filepath = os.path.join(result_dir, 'Max_normos.csv')
    df.to_csv(norm_filepath)
-   # print(error_norms)
+   plot_norms(error_norms, result_dir)
    return 0
 
 if __name__ == '__main__':
