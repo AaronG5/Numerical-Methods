@@ -4,6 +4,7 @@
 import numpy as np
 from scipy.optimize import fsolve
 from simple_iteration import simple_iteration, easy_system, hard_system
+from newton import newton_method, jacobian_easy, jacobian_hard
 
 def easy_system_original(X):
    x = X[0]
@@ -22,12 +23,26 @@ def hard_system_original(X):
    return (f1_res, f2_res, f3_res)
 
 def main():
-   X = (3.0, 3.0)
-   res_1 = simple_iteration(easy_system, X)
+   X_easy = np.array((3.26, 5.27))
+   X_hard = np.array((1.0, 1.0, 1.0))
 
-   res_scipy = fsolve(easy_system_original, X)
-   print(f'Simple iteration result: {res_1}\nPlugging values into system: {easy_system_original(res_1)}')
-   print(f'Fsolve result: {res_scipy}\nPlugging values into system: {easy_system_original(res_scipy)}')
+   # Simple iteration method
+   res_simple_iter_easy, iter_count_simple = simple_iteration(easy_system, X_easy)
+   print(f'Simple iteration easy result: {res_simple_iter_easy}\nPlugging values into system: {np.round(easy_system_original(res_simple_iter_easy), 5)}\nIterations: {iter_count_simple + 1}\n')
+
+   # Newton method
+   res_newton_easy, iter_count_newton = newton_method(easy_system_original, jacobian_easy, X_easy)
+   print(f'Newton\'s easy result: {res_newton_easy}\nPlugging values into system: {np.round(easy_system_original(res_newton_easy), 5)}\n')
+   # res_newton_hard = newton_method(hard_system_original, jacobian_hard, X_hard)
+   # print(f'Newton\'s hard result: {res_newton_hard}\nPlugging values into system: {np.round(hard_system_original(res_newton_hard), 5)}\n')
+   
+   # Separation method
+
+   # Scipy
+   res_scipy_easy = fsolve(easy_system_original, X_easy)
+   print(f'Fsolve easy result: {res_scipy_easy}\nPlugging values into system: {np.round(easy_system_original(res_scipy_easy), 5)}\n')
+   # res_scipy_hard = fsolve(hard_system_original, X_hard)
+   # print(f'Fsolve hard result: {res_scipy_hard}\nPlugging values into system: {hard_system_original(res_scipy_hard)}')
 
 
 if __name__ == '__main__':
