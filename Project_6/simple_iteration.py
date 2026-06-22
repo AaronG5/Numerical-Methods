@@ -17,11 +17,11 @@ def hard_system(X):
 def save_steps(step_history):
    result_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'res')
    os.makedirs(result_dir, exist_ok=True)
-   filepath = os.path.join(result_dir, 'Paprastosios_iteracijos.csv')
+   filepath = os.path.join(result_dir, 'Simple_iteration.csv')
    df = pd.DataFrame(step_history)
    df.to_csv(filepath)
 
-def simple_iteration(system, X, threshold = 1e-6, max_iter = 1000):
+def simple_iteration(system, X, threshold = 1e-6, max_iter = 100):
    step_history = [X]
    for i in range(max_iter):
       X_old = X.copy()
