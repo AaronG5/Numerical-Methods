@@ -22,11 +22,11 @@ def save_steps(step_history):
    df.to_csv(filepath)
 
 def simple_iteration(system, X, threshold = 1e-6, max_iter = 100):
-   step_history = [X]
+   step_history = [X.copy()]
    for i in range(max_iter):
       X_old = X.copy()
       X = system(X_old)
-      step_history.append(X)
+      step_history.append(X.copy())
       if np.linalg.norm(X - X_old, np.inf) < threshold:
          break 
 
