@@ -31,7 +31,7 @@ def simple_iteration(system, X, threshold = 1e-6, max_iter = 100):
       X_old = X.copy()
       X = system(X_old)
       step_history.append(X.copy())
-      if np.linalg.norm(X - X_old, np.inf) < threshold or not np.all(np.isfinite(X)):
+      if np.linalg.norm(X - X_old, 2) < threshold or not np.all(np.isfinite(X)):
          break 
 
    save_steps(step_history, len(X))
